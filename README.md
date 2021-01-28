@@ -17,10 +17,9 @@
 
 <img src="./images/logo.png" alt="Eiffel Event Repository" width="350"/>
 
-# Eiffel Event Repository
-
 [![Sandbox badge](https://img.shields.io/badge/Stage-Sandbox-yellow)](https://github.com/eiffel-community/community/blob/master/PROJECT_LIFECYCLE.md#stage-sandbox)
 
+# Eiffel Event Repository
 The Eiffel Event Repository provides a queryable persistence solution for [Eiffel](https://eiffel-community.github.io) events. It stores all events it is exposed to, and exposes a REST API through which events may be queried and their links traversed. Event persistence is a keystone capability in any implementation of the [Eiffel protocol](https://github.com/Ericsson/eiffel), allowing clients to not only parse events in real time, but also to query a historical record of past events.
 
 # About this repository
