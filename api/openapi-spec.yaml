@@ -1,0 +1,429 @@
+openapi: 3.0.1
+info:
+  title: Event Repository REST API
+  description: Event Repository REST API for retrieving the event information
+  contact: {}
+  version: 0.0.1
+tags:
+- name: event-resource
+  description: The Event Resource API for getting single event information
+- name: search-resource
+  description: The search api provides methods for querying up/down stream given an
+    event id.
+- name: events-resource
+  description: The Events Resource API for getting all events information
+paths:
+  /events:
+    get:
+      tags:
+      - events-resource
+      summary: To get all events information
+      operationId: getEventsUsingGET
+      parameters:
+      - name: pageNo
+        in: query
+        description: "Page to display if results span across multiple pages."
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      - name: pageSize
+        in: query
+        description: "The number of events to be displayed per page."
+        schema:
+          type: integer
+          format: int32
+          default: 500
+      - name: pageStartItem
+        in: query
+        description: "Intended to skip few items at the start of result, Should\
+          \ be used only if `pageNo=1` ie. first page of results."
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      - name: shallow
+        in: query
+        description: "Determines if external ER's should be used to compile\
+          \ the results of query. Use `false` to use External ER's."
+        schema:
+          type: boolean
+          default: false
+      - name: lazy
+        in: query
+        description: "If lazy is `true`, it implies that when the events limit\
+          \ is reached according to pazesize no additional request is performed and the search will stop."
+        schema:
+          type: boolean
+          default: false
+      - name: readable
+        in: query
+        description: |
+          Determines if event time should be in milliseconds, or in Human readable time format. Ex:
+
+          `false` -1499076742 982
+
+          `true` - 2018-10 -31T13:36:00.824Z.
+        schema:
+          type: boolean
+          default: false
+      responses:
+        200:
+          description: Successfully retrieved the events
+          content:
+            application/json:
+              schema:
+                type: string
+        401:
+          description: Unauthorized
+          content: {}
+        403:
+          description: Forbidden
+          content: {}
+        404:
+          description: The requested events are not found
+          content: {}
+        500:
+          description: Internal server issue
+          content: {}
+  /events/{id}:
+    get:
+      tags:
+      - event-resource
+      summary: To get single event information
+      operationId: getEventUsingGET
+      parameters:
+      - name: id
+        in: path
+        description: "Id of the event."
+        required: true
+        schema:
+          type: string
+      - name: shallow
+        in: query
+        description: "Determines if external ER's should be used to compile the results of query. Use `false` to use External ER's."
+        schema:
+          type: boolean
+          default: false
+      - name: readable
+        in: query
+        description: |
+          Determines if event time should be in milliseconds, or in Human readable time format. Ex:
+
+          `false` -1499076742 982
+
+          `true` - 2018-10 -31T13:36:00.824Z.
+        schema:
+          type: boolean
+          default: false
+      responses:
+        200:
+          description: Successfully retrieved the Event
+          content:
+            text/html:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: string
+        400:
+          description: The eventId is not provided
+          content: {}
+        401:
+          description: Unauthorized
+          content: {}
+        403:
+          description: Forbidden
+          content: {}
+        404:
+          description: The requested event is not found
+          content: {}
+        500:
+          description: Internal server issue
+          content: {}
+  /search/{id}:
+    get:
+      tags:
+      - search-resource
+      summary: To get an event based on eventId passed
+      operationId: searchUsingGET
+      parameters:
+      - name: id
+        in: path
+        description: "Id of the event."
+        required: true
+        schema:
+          type: string
+      - name: shallow
+        in: query
+        description: "Determines if external ER's should be used to compile the results of query. Use `false` to use External ER's."
+        schema:
+          type: boolean
+          default: false
+      - name: readable
+        in: query
+        description: |
+          Determines if event time should be in milliseconds, or in Human readable time format. Ex:
+
+          `false` -1499076742 982
+
+          `true` - 2018-10 -31T13:36:00.824Z.
+        schema:
+          type: boolean
+          default: false
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+        401:
+          description: Unauthorized
+          content: {}
+        403:
+          description: Forbidden
+          content: {}
+        404:
+          description: Not Found
+          content: {}
+    post:
+      tags:
+      - search-resource
+      summary: To get upstream/downstream events for an event based on the searchParameters
+        passed
+      operationId: searchUsingPOST
+      parameters:
+      - name: id
+        in: path
+        description: "Id of the event."
+        required: true
+        schema:
+          type: string
+      - name: limit
+        in: query
+        description: "Determines the maximum amount of events to be fetched."
+        schema:
+          type: integer
+          format: int32
+          default: -1
+      - name: levels
+        in: query
+        description: "Determines the maximum amount of levels to search."
+        schema:
+          type: integer
+          format: int32
+          default: -1
+      - name: tree
+        in: query
+        description: "Determines whether tree structure representation\
+          \ of events flow is  required or not."
+        schema:
+          type: boolean
+          default: false
+      - name: shallow
+        in: query
+        description: "Determines if external ER's should be used to compile\
+          \ the results of query. Use `false` to use External ER's."
+        schema:
+          type: boolean
+          default: false
+      - name: readable
+        in: query
+        description: |
+          Determines if event time should be in milliseconds, or in Human readable time format. Ex:
+
+          `false` -1499076742 982
+
+          `true` - 2018-10 -31T13:36:00.824Z.
+        schema:
+          type: boolean
+          default: false
+      requestBody:
+        description: |
+          Option that is responsible for the choice of link types that should be followed under execution of upstream/downstream search.
+
+          Link Types:
+
+            - CAUSE
+            - CONTEXT
+            - FLOW_CONTEXT
+            - ACTIVITY_EXECUTION
+            - PREVIOUS_ACTIVITY_EXECUTION
+            - PREVIOUS_VERSION
+            - COMPOSITION
+            - ENVIRONMENT
+            - ARTIFACT
+            - SUBJECT
+            - ELEMENT
+            - BASE
+            - CHANGE
+            - TEST_SUITE_EXECUTION
+            - TEST_CASE_EXECUTION
+            - IUT
+            - TERC
+            - MODIFIED_ANNOUNCEMENT
+            - SUB_CONFIDENCE_LEVEL
+            - REUSED_ARTIFACT
+            - VERIFICATION_BASIS
+            - ALL
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchParameters'
+        required: false
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseEntity'
+        201:
+          description: Created
+          content: {}
+        401:
+          description: Unauthorized
+          content: {}
+        403:
+          description: Forbidden
+          content: {}
+        404:
+          description: Not Found
+          content: {}
+      x-codegen-request-body-name: searchParameters
+components:
+  schemas:
+    SearchParameters:
+      type: object
+      properties:
+        dlt:
+          type: array
+          items:
+            type: string
+            enum:
+            - CAUSE
+            - CONTEXT
+            - FLOW_CONTEXT
+            - ACTIVITY_EXECUTION
+            - PREVIOUS_ACTIVITY_EXECUTION
+            - PREVIOUS_VERSION
+            - COMPOSITION
+            - ENVIRONMENT
+            - ARTIFACT
+            - SUBJECT
+            - ELEMENT
+            - BASE
+            - CHANGE
+            - TEST_SUITE_EXECUTION
+            - TEST_CASE_EXECUTION
+            - IUT
+            - TERC
+            - MODIFIED_ANNOUNCEMENT
+            - SUB_CONFIDENCE_LEVEL
+            - REUSED_ARTIFACT
+            - VERIFICATION_BASIS
+            - ALL
+        ult:
+          type: array
+          items:
+            type: string
+            enum:
+            - CAUSE
+            - CONTEXT
+            - FLOW_CONTEXT
+            - ACTIVITY_EXECUTION
+            - PREVIOUS_ACTIVITY_EXECUTION
+            - PREVIOUS_VERSION
+            - COMPOSITION
+            - ENVIRONMENT
+            - ARTIFACT
+            - SUBJECT
+            - ELEMENT
+            - BASE
+            - CHANGE
+            - TEST_SUITE_EXECUTION
+            - TEST_CASE_EXECUTION
+            - IUT
+            - TERC
+            - MODIFIED_ANNOUNCEMENT
+            - SUB_CONFIDENCE_LEVEL
+            - REUSED_ARTIFACT
+            - VERIFICATION_BASIS
+            - ALL
+    ResponseEntity:
+      type: object
+      properties:
+        body:
+          type: object
+          properties: {}
+        statusCode:
+          type: string
+          enum:
+          - "100"
+          - "101"
+          - "102"
+          - "103"
+          - "200"
+          - "201"
+          - "202"
+          - "203"
+          - "204"
+          - "205"
+          - "206"
+          - "207"
+          - "208"
+          - "226"
+          - "300"
+          - "301"
+          - "302"
+          - "303"
+          - "304"
+          - "305"
+          - "307"
+          - "308"
+          - "400"
+          - "401"
+          - "402"
+          - "403"
+          - "404"
+          - "405"
+          - "406"
+          - "407"
+          - "408"
+          - "409"
+          - "410"
+          - "411"
+          - "412"
+          - "413"
+          - "414"
+          - "415"
+          - "416"
+          - "417"
+          - "418"
+          - "419"
+          - "420"
+          - "421"
+          - "422"
+          - "423"
+          - "424"
+          - "426"
+          - "428"
+          - "429"
+          - "431"
+          - "451"
+          - "500"
+          - "501"
+          - "502"
+          - "503"
+          - "504"
+          - "505"
+          - "506"
+          - "507"
+          - "508"
+          - "509"
+          - "510"
+          - "511"
+        statusCodeValue:
+          type: integer
+          format: int32
