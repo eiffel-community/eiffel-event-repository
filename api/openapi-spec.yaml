@@ -63,7 +63,7 @@ paths:
 
           `false` -1499076742 982
 
-          `true` - 2018-10 -31T13:36:00.824Z.
+          `true` - 2018-10-31T13:36:00.824Z.
         schema:
           type: boolean
           default: false
@@ -73,7 +73,22 @@ paths:
           content:
             application/json:
               schema:
-                type: string
+                type: object
+                properties:
+                  pageNo:
+                    type: integer
+                    example: 1
+                  pageSize:
+                    type: integer
+                    example: 500
+                  totalNumberItems:
+                    type: integer
+                    example: 234
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      example: All found eiffel events
         401:
           description: Unauthorized
           content: {}
@@ -112,7 +127,7 @@ paths:
 
           `false` -1499076742 982
 
-          `true` - 2018-10 -31T13:36:00.824Z.
+          `true` - 2018-10-31T13:36:00.824Z.
         schema:
           type: boolean
           default: false
@@ -123,9 +138,11 @@ paths:
             text/html:
               schema:
                 type: string
+                example: "Webpage showing raw events but with clickable event links"
             application/json:
               schema:
-                type: string
+                type: object
+                example: The Eiffel event requested
         400:
           description: The eventId is not provided
           content: {}
@@ -137,7 +154,14 @@ paths:
           content: {}
         404:
           description: The requested event is not found
-          content: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errorMsg:
+                    type: string
+                    example: "The requested event is not found"
         500:
           description: Internal server issue
           content: {}
@@ -167,7 +191,7 @@ paths:
 
           `false` -1499076742 982
 
-          `true` - 2018-10 -31T13:36:00.824Z.
+          `true` - 2018-10-31T13:36:00.824Z.
         schema:
           type: boolean
           default: false
@@ -177,7 +201,8 @@ paths:
           content:
             application/json:
               schema:
-                type: string
+                type: object
+                example: The Eiffel event requested
         401:
           description: Unauthorized
           content: {}
@@ -235,7 +260,7 @@ paths:
 
           `false` -1499076742 982
 
-          `true` - 2018-10 -31T13:36:00.824Z.
+          `true` - 2018-10-31T13:36:00.824Z.
         schema:
           type: boolean
           default: false
@@ -278,7 +303,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResponseEntity'
+                type: object
+                properties:
+                  upstreamLinkObjects:
+                    type: array
+                    items:
+                      type: object
+                      example: The searched event + all upsteam events
+                  downstreamLinkObjects:
+                    type: array
+                    items:
+                      type: object
+                      example: The searched event + all downstream events
         201:
           description: Created
           content: {}
