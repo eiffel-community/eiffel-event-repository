@@ -61,12 +61,96 @@ paths:
         description: |
           Determines if event time should be in milliseconds, or in Human readable time format. Ex:
 
-          `false` -1499076742 982
+          `false` 1499076742982
 
-          `true` - 2018-10-31T13:36:00.824Z.
+          `true`  2018-10-31T13:36:00.824Z.
         schema:
           type: boolean
           default: false
+      - name: params
+        in: query
+        description: |
+          To search for specific events or artifacts, filtering with parameters is supported.
+
+          **Syntax:**
+
+          `<resource>?key[.key ...]<FC>value[&key[.key ...]<FC>value ...]`
+
+          <FC> is one of the Filter comparators described below. To traverse into nested structures and filter on their keys, namespacing with
+          `.` (dot) is used.
+
+          ```
+          =  - equal to
+          >  - greater than
+          <  - less than
+          >= - greater than or equal to
+          <= - less than or equal to
+          != - not equal to
+          ```
+
+          **Examples, single key:**
+
+          `/events/?meta.type=EiffelActivityStartedEvent`
+
+          **Examples multiple keys:**
+
+          ```
+          /events/?key1=value1&key2=value2
+          /events/?key1>=value1&key2!=value2&key3<value3    #Multiple comparators
+          /events/?key1>value1&key1<=value2&key1!=value3    #Multiple constraints on one key
+          ```
+
+          **Examples nested structures:**
+          ```
+          /events/?data.identity=pkg:maven/my.namespace/my-name@1.0.0
+          /events/?meta.source.domainId=my.domain&data.identity=pkg:maven/my.namespace/my-name@1.0.0    #Multiple keys and nested structures
+          ```
+
+          Note that mutiple keys only is allowed with logical AND (via `&`). There are no support for logical OR.
+
+          Filters also allow for regex to be used. This means you can make more complex matchings or use partial matching. In regex `.*` matches anything and basically works like wildcards.
+
+          **Examples of regex:**
+          ```
+          /events/?data.identity=my-artifact@1.0.0              #Partial match using artifact name and version
+          /events/?data.identity=my.namespace                   #Partial match using artifact namespace
+          /events/?data.identity=my.namespace/.*@1.0.0          #Matches any version 1.0.0 artifact within the namespace 'my.namespace'
+          /events/?data.identity=my.namespace/my-name@.*        #Matches any version of the artifact 'my-artifact' within the namepsace 'my-namespace'
+          /events/?data.identity=my.namespace/.*                #Matches any artifact within the namespace 'my.namespace'
+          ```
+          **Data types:**
+
+          By default, all data types are treated as strings. It is possible to specify the data type by including it explicitly in the query:
+
+          ```
+          /events/?int(key1)>=value1&key2!=value2&double(key3)<value3
+          ```
+
+          In this example, `key1` and `value1` are treated as integers, `key2` and `value2` are treated as strings and `key3` and `values3` are treated as doubles.
+
+          Currently only string (default), integer and double data types are supported.
+
+          **No comparator:**
+
+          Note that for events query, there is one special supported case is that the query expression has no comparator and value at all, for example `/events/?key`, which means getting all events who has `key` as a field in the JSON documents. The REST API for events query also supports `!key` as a filter which means getting all events without field ‘key’ in the JSON documents. Here are some examples:
+
+          ```
+          /events/?data.identity                                   #Get all the events containing field 'identity' in the 'data'
+          /events/?meta.source.domainId=my.domain&data.identity    #DomainId is 'my.domain' and has field 'identity' in 'data'
+          /events/?!data.customData                                #Return all the events without field 'customData' in 'data'
+          ```
+
+        schema:
+          type: object
+          additionalProperties:
+            type: string
+        style: form
+        explode: true
+        example: |
+          {
+            "meta.type":"EiffelArtifactCreatedEvent",
+            "data.identity":"pkg:maven/my.namespace/my-name@1.0.0"
+          }
       responses:
         200:
           description: Successfully retrieved the events
@@ -125,9 +209,9 @@ paths:
         description: |
           Determines if event time should be in milliseconds, or in Human readable time format. Ex:
 
-          `false` -1499076742 982
+          `false` 1499076742982
 
-          `true` - 2018-10-31T13:36:00.824Z.
+          `true`  2018-10-31T13:36:00.824Z.
         schema:
           type: boolean
           default: false
@@ -189,9 +273,9 @@ paths:
         description: |
           Determines if event time should be in milliseconds, or in Human readable time format. Ex:
 
-          `false` -1499076742 982
+          `false` 1499076742982
 
-          `true` - 2018-10-31T13:36:00.824Z.
+          `true`  2018-10-31T13:36:00.824Z.
         schema:
           type: boolean
           default: false
@@ -258,9 +342,9 @@ paths:
         description: |
           Determines if event time should be in milliseconds, or in Human readable time format. Ex:
 
-          `false` -1499076742 982
+          `false` 1499076742982
 
-          `true` - 2018-10-31T13:36:00.824Z.
+          `true`  2018-10-31T13:36:00.824Z.
         schema:
           type: boolean
           default: false
@@ -387,79 +471,3 @@ components:
             - REUSED_ARTIFACT
             - VERIFICATION_BASIS
             - ALL
-    ResponseEntity:
-      type: object
-      properties:
-        body:
-          type: object
-          properties: {}
-        statusCode:
-          type: string
-          enum:
-          - "100"
-          - "101"
-          - "102"
-          - "103"
-          - "200"
-          - "201"
-          - "202"
-          - "203"
-          - "204"
-          - "205"
-          - "206"
-          - "207"
-          - "208"
-          - "226"
-          - "300"
-          - "301"
-          - "302"
-          - "303"
-          - "304"
-          - "305"
-          - "307"
-          - "308"
-          - "400"
-          - "401"
-          - "402"
-          - "403"
-          - "404"
-          - "405"
-          - "406"
-          - "407"
-          - "408"
-          - "409"
-          - "410"
-          - "411"
-          - "412"
-          - "413"
-          - "414"
-          - "415"
-          - "416"
-          - "417"
-          - "418"
-          - "419"
-          - "420"
-          - "421"
-          - "422"
-          - "423"
-          - "424"
-          - "426"
-          - "428"
-          - "429"
-          - "431"
-          - "451"
-          - "500"
-          - "501"
-          - "502"
-          - "503"
-          - "504"
-          - "505"
-          - "506"
-          - "507"
-          - "508"
-          - "509"
-          - "510"
-          - "511"
-        statusCodeValue:
-          type: integer
-          format: int32
