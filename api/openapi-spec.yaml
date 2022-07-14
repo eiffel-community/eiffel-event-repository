@@ -20,13 +20,6 @@ paths:
       summary: To get all events information
       operationId: getEventsUsingGET
       parameters:
-      - name: pageNo
-        in: query
-        description: "Page to display if results span across multiple pages."
-        schema:
-          type: integer
-          format: int32
-          default: 1
       - name: pageSize
         in: query
         description: "The number of events to be displayed per page."
@@ -34,39 +27,6 @@ paths:
           type: integer
           format: int32
           default: 500
-      - name: pageStartItem
-        in: query
-        description: "Intended to skip few items at the start of result, Should\
-          \ be used only if `pageNo=1` ie. first page of results."
-        schema:
-          type: integer
-          format: int32
-          default: 1
-      - name: shallow
-        in: query
-        description: "Determines if external ER's should be used to compile\
-          \ the results of query. Use `false` to use External ER's."
-        schema:
-          type: boolean
-          default: false
-      - name: lazy
-        in: query
-        description: "If lazy is `true`, it implies that when the events limit\
-          \ is reached according to pazesize no additional request is performed and the search will stop."
-        schema:
-          type: boolean
-          default: false
-      - name: readable
-        in: query
-        description: |
-          Determines if event time should be in milliseconds, or in Human readable time format. Ex:
-
-          `false` 1499076742982
-
-          `true`  2018-10-31T13:36:00.824Z.
-        schema:
-          type: boolean
-          default: false
       - name: params
         in: query
         description: |
@@ -90,55 +50,49 @@ paths:
 
           **Examples, single key:**
 
-          `/events/?meta.type=EiffelActivityStartedEvent`
+          `/events?meta.type=EiffelActivityStartedEvent`
 
           **Examples multiple keys:**
 
           ```
-          /events/?key1=value1&key2=value2
-          /events/?key1>=value1&key2!=value2&key3<value3    #Multiple comparators
-          /events/?key1>value1&key1<=value2&key1!=value3    #Multiple constraints on one key
+          /events?key1=value1&key2=value2
+          /events?key1>=value1&key2!=value2&key3<value3    #Multiple comparators
+          /events?key1>value1&key1<=value2&key1!=value3    #Multiple constraints on one key
           ```
 
           **Examples nested structures:**
           ```
-          /events/?data.identity=pkg:maven/my.namespace/my-name@1.0.0
-          /events/?meta.source.domainId=my.domain&data.identity=pkg:maven/my.namespace/my-name@1.0.0    #Multiple keys and nested structures
+          /events?data.identity=pkg:maven/my.namespace/my-name@1.0.0
+          /events?meta.source.domainId=my.domain&data.identity=pkg:maven/my.namespace/my-name@1.0.0    #Multiple keys and nested structures
           ```
 
           Note that mutiple keys only is allowed with logical AND (via `&`). There are no support for logical OR.
 
-          Filters also allow for regex to be used. This means you can make more complex matchings or use partial matching. In regex `.*` matches anything and basically works like wildcards.
-
-          **Examples of regex:**
-          ```
-          /events/?data.identity=my-artifact@1.0.0              #Partial match using artifact name and version
-          /events/?data.identity=my.namespace                   #Partial match using artifact namespace
-          /events/?data.identity=my.namespace/.*@1.0.0          #Matches any version 1.0.0 artifact within the namespace 'my.namespace'
-          /events/?data.identity=my.namespace/my-name@.*        #Matches any version of the artifact 'my-artifact' within the namepsace 'my-namespace'
-          /events/?data.identity=my.namespace/.*                #Matches any artifact within the namespace 'my.namespace'
-          ```
           **Data types:**
 
           By default, all data types are treated as strings. It is possible to specify the data type by including it explicitly in the query:
 
           ```
-          /events/?int(key1)>=value1&key2!=value2&double(key3)<value3
+          /events?int(key1)>=value1&key2!=value2&double(key3)<value3
           ```
 
           In this example, `key1` and `value1` are treated as integers, `key2` and `value2` are treated as strings and `key3` and `values3` are treated as doubles.
 
-          Currently only string (default), integer and double data types are supported.
+          Currently only string (default), integer, long and double data types are supported.
 
           **No comparator:**
 
-          Note that for events query, there is one special supported case is that the query expression has no comparator and value at all, for example `/events/?key`, which means getting all events who has `key` as a field in the JSON documents. The REST API for events query also supports `!key` as a filter which means getting all events without field ‘key’ in the JSON documents. Here are some examples:
+          Note that for events query, there is one special supported case is that the query expression has no comparator and value at all, for example `/events?key`, which means getting all events who has `key` as a field in the JSON documents. The REST API for events query also supports `!key` as a filter which means getting all events without field ‘key’ in the JSON documents. Here are some examples:
 
           ```
-          /events/?data.identity                                   #Get all the events containing field 'identity' in the 'data'
-          /events/?meta.source.domainId=my.domain&data.identity    #DomainId is 'my.domain' and has field 'identity' in 'data'
-          /events/?!data.customData                                #Return all the events without field 'customData' in 'data'
+          /events?data.identity                                   #Get all the events containing field 'identity' in the 'data'
+          /events?meta.source.domainId=my.domain&data.identity    #DomainId is 'my.domain' and has field 'identity' in 'data'
+          /events?!data.customData                                #Return all the events without field 'customData' in 'data'
           ```
+
+          **Example**
+
+          The following example adds two search parameters. The result of the obeject will result in adding `meta.type=EiffelArtifactCreatedEvent&data.identity=pkg%3Amaven%2Fmy.namespace%2Fmy-name%401.0.0` to the search.
 
         schema:
           type: object
@@ -198,37 +152,80 @@ paths:
         required: true
         schema:
           type: string
-      - name: shallow
-        in: query
-        description: "Determines if external ER's should be used to compile the results of query. Use `false` to use External ER's."
-        schema:
-          type: boolean
-          default: false
-      - name: readable
-        in: query
-        description: |
-          Determines if event time should be in milliseconds, or in Human readable time format. Ex:
-
-          `false` 1499076742982
-
-          `true`  2018-10-31T13:36:00.824Z.
-        schema:
-          type: boolean
-          default: false
       responses:
         200:
           description: Successfully retrieved the Event
           content:
-            text/html:
-              schema:
-                type: string
-                example: "Webpage showing raw events but with clickable event links"
             application/json:
               schema:
                 type: object
-                example: The Eiffel event requested
+                properties:
+                  meta:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: 1a4bc724-95f7-43c9-b5de-6348ddddbafe
+                      type:
+                        type: string
+                        example: EiffelActivityStartedEvent
+                      version:
+                        type: string
+                        example: 4.0.0
+                      time:
+                        type: integer
+                        format: int64
+                        example: 1657718729693
+                      tags:
+                        type: array
+                        items:
+                          type: string
+                        example: []
+                      source:
+                        type: object
+                        properties:
+                          domainId:
+                            type: string
+                            example: some.domain
+                          host:
+                            type: string
+                            example: host.my.company.com
+                          name:
+                            type: string
+                            example: my-server-name
+                          serializer:
+                            type: string
+                            example: pkg:maven/com.github.eiffel-community/eiffel-remrem-semantics@2.1.3
+                          uri:
+                            type: string
+                            example: https://my-server-name.host.my.company.com/mybuild
+                      data:
+                        type: object
+                        properties:
+                          liveLogs:
+                            type: array
+                            items:
+                              type: string
+                            example: []
+                          customData:
+                            type: array
+                            items:
+                              type: object
+                            example: []
+                      links:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            type:
+                              type: string
+                              example: ACTIVITY_EXECUTION
+                            target:
+                              type: string
+                              example: b46e1a1e-8887-4837-933e-bbd921662e66
+
         400:
-          description: The eventId is not provided
+          description: Wrong type given for parameter
           content: {}
         401:
           description: Unauthorized
@@ -250,52 +247,6 @@ paths:
           description: Internal server issue
           content: {}
   /search/{id}:
-    get:
-      tags:
-      - search-resource
-      summary: To get an event based on eventId passed
-      operationId: searchUsingGET
-      parameters:
-      - name: id
-        in: path
-        description: "Id of the event."
-        required: true
-        schema:
-          type: string
-      - name: shallow
-        in: query
-        description: "Determines if external ER's should be used to compile the results of query. Use `false` to use External ER's."
-        schema:
-          type: boolean
-          default: false
-      - name: readable
-        in: query
-        description: |
-          Determines if event time should be in milliseconds, or in Human readable time format. Ex:
-
-          `false` 1499076742982
-
-          `true`  2018-10-31T13:36:00.824Z.
-        schema:
-          type: boolean
-          default: false
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                example: The Eiffel event requested
-        401:
-          description: Unauthorized
-          content: {}
-        403:
-          description: Forbidden
-          content: {}
-        404:
-          description: Not Found
-          content: {}
     post:
       tags:
       - search-resource
@@ -311,46 +262,30 @@ paths:
           type: string
       - name: limit
         in: query
-        description: "Determines the maximum amount of events to be fetched."
+        description: >
+          Determines the maximum amount of events to be fetched.
+          Use `-1` for unlimited.
         schema:
           type: integer
           format: int32
-          default: -1
       - name: levels
         in: query
-        description: "Determines the maximum amount of levels to search."
+        description: >
+          Determines the maximum amount of levels to search.
+          Use `-1` for unlimited
         schema:
           type: integer
           format: int32
-          default: -1
-      - name: tree
-        in: query
-        description: "Determines whether tree structure representation\
-          \ of events flow is  required or not."
-        schema:
-          type: boolean
-          default: false
-      - name: shallow
-        in: query
-        description: "Determines if external ER's should be used to compile\
-          \ the results of query. Use `false` to use External ER's."
-        schema:
-          type: boolean
-          default: false
-      - name: readable
-        in: query
-        description: |
-          Determines if event time should be in milliseconds, or in Human readable time format. Ex:
-
-          `false` 1499076742982
-
-          `true`  2018-10-31T13:36:00.824Z.
-        schema:
-          type: boolean
-          default: false
       requestBody:
         description: |
-          Option that is responsible for the choice of link types that should be followed under execution of upstream/downstream search.
+          Select what types of links you want upstream/downstream search to follow.
+
+          Examples:
+
+            * Selelect `CAUSE` if you only want the search to follow `CAUSE` links
+              dissregarding other links.
+            * Selelect `CONTEXT` and `ACTIVITY_EXECUTION` if you want to follow both `CONTEXT`
+              and `ACTIVITY_EXECUTION` links.
 
           Link Types:
 
@@ -376,6 +311,10 @@ paths:
             - REUSED_ARTIFACT
             - VERIFICATION_BASIS
             - ALL
+
+            **Example**
+
+            In the following example `dlt` stands for downlink and `ult` stands for uplink
         content:
           application/json:
             schema:
@@ -393,15 +332,12 @@ paths:
                     type: array
                     items:
                       type: object
-                      example: The searched event + all upsteam events
+                      example: The searched event + all upstream events
                   downstreamLinkObjects:
                     type: array
                     items:
                       type: object
                       example: The searched event + all downstream events
-        201:
-          description: Created
-          content: {}
         401:
           description: Unauthorized
           content: {}
