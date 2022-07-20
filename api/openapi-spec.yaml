@@ -5,18 +5,13 @@ info:
   contact: {}
   version: 0.0.1
 tags:
-- name: event-resource
-  description: The Event Resource API for getting single event information
-- name: search-resource
-  description: The search api provides methods for querying up/down stream given an
-    event id.
-- name: events-resource
-  description: The Events Resource API for getting all events information
+- name: API
+  description: Event Repository API
 paths:
   /events:
     get:
       tags:
-      - events-resource
+      - API
       summary: To get all events information
       operationId: getEventsUsingGET
       parameters:
@@ -34,19 +29,10 @@ paths:
 
           **Syntax:**
 
-          `<resource>?key[.key ...]<FC>value[&key[.key ...]<FC>value ...]`
+          `<resource>?key[.key ...]=value[&key[.key ...]=value ...]`
 
-          <FC> is one of the Filter comparators described below. To traverse into nested structures and filter on their keys, namespacing with
+          To traverse into nested structures and filter on their keys, namespacing with
           `.` (dot) is used.
-
-          ```
-          =  - equal to
-          >  - greater than
-          <  - less than
-          >= - greater than or equal to
-          <= - less than or equal to
-          != - not equal to
-          ```
 
           **Examples, single key:**
 
@@ -56,8 +42,7 @@ paths:
 
           ```
           /events?key1=value1&key2=value2
-          /events?key1>=value1&key2!=value2&key3<value3    #Multiple comparators
-          /events?key1>value1&key1<=value2&key1!=value3    #Multiple constraints on one key
+          /events?key1=value1&key2=value2&key3=value3
           ```
 
           **Examples nested structures:**
@@ -73,7 +58,7 @@ paths:
           By default, all data types are treated as strings. It is possible to specify the data type by including it explicitly in the query:
 
           ```
-          /events?int(key1)>=value1&key2!=value2&double(key3)<value3
+          /events?int(key1)>=value1&key2=value2&double(key3)=value3
           ```
 
           In this example, `key1` and `value1` are treated as integers, `key2` and `value2` are treated as strings and `key3` and `values3` are treated as doubles.
@@ -92,7 +77,7 @@ paths:
 
           **Example**
 
-          The following example adds two search parameters. The result of the obeject will result in adding `meta.type=EiffelArtifactCreatedEvent&data.identity=pkg%3Amaven%2Fmy.namespace%2Fmy-name%401.0.0` to the search.
+          The following example adds two search parameters. The result of the object will result in adding `meta.type=EiffelArtifactCreatedEvent&data.identity=pkg%3Amaven%2Fmy.namespace%2Fmy-name%401.0.0` to the search.
 
         schema:
           type: object
@@ -112,6 +97,9 @@ paths:
             application/json:
               schema:
                 type: object
+                required:
+                    - pageSize
+                    - totalNumberItems
                 properties:
                   pageNo:
                     type: integer
@@ -121,12 +109,11 @@ paths:
                     example: 500
                   totalNumberItems:
                     type: integer
-                    example: 234
+                    example: 1
                   items:
                     type: array
                     items:
-                      type: object
-                      example: All found eiffel events
+                      $ref: "#/components/schemas/EiffelEvent"
         401:
           description: Unauthorized
           content: {}
@@ -142,7 +129,7 @@ paths:
   /events/{id}:
     get:
       tags:
-      - event-resource
+      - API
       summary: To get single event information
       operationId: getEventUsingGET
       parameters:
@@ -158,72 +145,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  meta:
-                    type: object
-                    properties:
-                      id:
-                        type: string
-                        example: 1a4bc724-95f7-43c9-b5de-6348ddddbafe
-                      type:
-                        type: string
-                        example: EiffelActivityStartedEvent
-                      version:
-                        type: string
-                        example: 4.0.0
-                      time:
-                        type: integer
-                        format: int64
-                        example: 1657718729693
-                      tags:
-                        type: array
-                        items:
-                          type: string
-                        example: []
-                      source:
-                        type: object
-                        properties:
-                          domainId:
-                            type: string
-                            example: some.domain
-                          host:
-                            type: string
-                            example: host.my.company.com
-                          name:
-                            type: string
-                            example: my-server-name
-                          serializer:
-                            type: string
-                            example: pkg:maven/com.github.eiffel-community/eiffel-remrem-semantics@2.1.3
-                          uri:
-                            type: string
-                            example: https://my-server-name.host.my.company.com/mybuild
-                      data:
-                        type: object
-                        properties:
-                          liveLogs:
-                            type: array
-                            items:
-                              type: string
-                            example: []
-                          customData:
-                            type: array
-                            items:
-                              type: object
-                            example: []
-                      links:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            type:
-                              type: string
-                              example: ACTIVITY_EXECUTION
-                            target:
-                              type: string
-                              example: b46e1a1e-8887-4837-933e-bbd921662e66
-
+                $ref: "#/components/schemas/EiffelEvent"
         400:
           description: Wrong type given for parameter
           content: {}
@@ -249,7 +171,7 @@ paths:
   /search/{id}:
     post:
       tags:
-      - search-resource
+      - API
       summary: To get upstream/downstream events for an event based on the searchParameters
         passed
       operationId: searchUsingPOST
@@ -282,9 +204,9 @@ paths:
 
           Examples:
 
-            * Selelect `CAUSE` if you only want the search to follow `CAUSE` links
-              dissregarding other links.
-            * Selelect `CONTEXT` and `ACTIVITY_EXECUTION` if you want to follow both `CONTEXT`
+            * Select `CAUSE` if you only want the search to follow `CAUSE` links
+              disregarding other links.
+            * Select `CONTEXT` and `ACTIVITY_EXECUTION` if you want to follow both `CONTEXT`
               and `ACTIVITY_EXECUTION` links.
 
           Link Types:
@@ -331,13 +253,11 @@ paths:
                   upstreamLinkObjects:
                     type: array
                     items:
-                      type: object
-                      example: The searched event + all upstream events
+                      $ref: "#/components/schemas/EiffelEvent"
                   downstreamLinkObjects:
                     type: array
                     items:
-                      type: object
-                      example: The searched event + all downstream events
+                      $ref: "#/components/schemas/EiffelEvent"
         401:
           description: Unauthorized
           content: {}
@@ -407,3 +327,23 @@ components:
             - REUSED_ARTIFACT
             - VERIFICATION_BASIS
             - ALL
+    EiffelEvent:
+      type: object
+      properties:
+        meta:
+          type: object
+        data:
+          type: object
+        links:
+          type: array
+          items:
+            type: object
+      example:
+        meta:
+          id: 1a4bc724-95f7-43c9-b5de-6348ddddbafe
+          type: EiffelCompositionDefinedEvent
+          version: 4.0.0
+          time: 657718729693
+        data:
+          name: "My Composition"
+        links: []
