@@ -267,6 +267,9 @@ paths:
         404:
           description: Not Found
           content: {}
+        413:
+          description: Content Too Large - use the limit flag to limit the amount of events
+          content: {}
       x-codegen-request-body-name: searchParameters
 components:
   schemas:
