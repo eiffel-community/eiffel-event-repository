@@ -61,23 +61,29 @@ paths:
           /events?int(key1)>=value1&key2=value2&double(key3)=value3
           ```
 
-          In this example, `key1` and `value1` are treated as integers, `key2` and `value2` are treated as strings and `key3` and `values3` are treated as doubles.
+          In this example, `key1` and `value1` are treated as integers, `key2`
+          and `value2` are treated as strings and `key3` and `values3` are
+          treated as doubles.
 
           Currently only string (default), integer, long and double data types are supported.
 
           **No comparator:**
 
-          Note that for events query, there is one special supported case is that the query expression has no comparator and value at all, for example `/events?key`, which means getting all events who has `key` as a field in the JSON documents. The REST API for events query also supports `!key` as a filter which means getting all events without field ‘key’ in the JSON documents. Here are some examples:
+          To search for data that contains a field, use a query parameter
+          without comparator and value. For example `/events?key`fetches  all
+          events who has `key` as a field in the JSON documents. Here are some
+          examples:
 
           ```
           /events?data.identity                                   #Get all the events containing field 'identity' in the 'data'
           /events?meta.source.domainId=my.domain&data.identity    #DomainId is 'my.domain' and has field 'identity' in 'data'
-          /events?!data.customData                                #Return all the events without field 'customData' in 'data'
           ```
 
           **Example**
 
-          The following example adds two search parameters. The result of the object will result in adding `meta.type=EiffelArtifactCreatedEvent&data.identity=pkg%3Amaven%2Fmy.namespace%2Fmy-name%401.0.0` to the search.
+          The following example adds two search parameters as two query keys (see https://swagger.io/docs/specification/serialization/ for more information).
+          The result of the object will result in adding `meta.type=EiffelArtifactCreatedEvent&data.identity=pkg%3Amaven%2Fmy.namespace%2Fmy-name%401.0.0` to the search.
+
 
         schema:
           type: object
@@ -121,7 +127,7 @@ paths:
           description: Forbidden
           content: {}
         404:
-          description: The requested events are not found
+          description: No events matching the given query were found
           content: {}
         500:
           description: Internal server issue
@@ -186,18 +192,20 @@ paths:
         in: query
         description: >
           Determines the maximum amount of events to be fetched.
-          Use `-1` for unlimited.
+          Use `-1` for maximum amount of the events the server can provide.
         schema:
           type: integer
           format: int32
+          default: -1
       - name: levels
         in: query
         description: >
           Determines the maximum amount of levels to search.
-          Use `-1` for unlimited
+          Use `-1` for maximum amount of levels the server can search
         schema:
           type: integer
           format: int32
+          default: -1
       requestBody:
         description: |
           Select what types of links you want upstream/downstream search to follow.
@@ -232,6 +240,9 @@ paths:
             - SUB_CONFIDENCE_LEVEL
             - REUSED_ARTIFACT
             - VERIFICATION_BASIS
+            - PRECURSOR
+            - ORIGINAL_TRIGGER
+            - CONFIGURATION
             - ALL
 
             **Example**
@@ -258,6 +269,50 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/EiffelEvent"
+              example:
+                  upstreamLinkObjects:
+                    - meta:
+                        id: 1a4bc724-95f7-43c9-b5de-6348ddddbafe
+                        type: EiffelCompositionDefinedEvent
+                        version: 4.0.0
+                        time: 657718729693
+                      data:
+                        name: My Composition
+                      links:
+                        - target: a77fc96e-847c-4828-9a16-2c2edd3c9580
+                          type: ELEMENT
+                    - meta:
+                        id: a77fc96e-847c-4828-9a16-2c2edd3c9580
+                        type: EiffelCompositionDefinedEvent
+                        version: 4.0.0
+                        time: 657718729600
+                      data:
+                        name: My Sub Composition
+                      links: []
+                  downstreamLinkObjects:
+                    - meta:
+                        id: 1a4bc724-95f7-43c9-b5de-6348ddddbafe
+                        type: EiffelCompositionDefinedEvent
+                        version: 4.0.0
+                        time: 657718729693
+                      data:
+                        name: My Composition
+                      links:
+                        - target: a77fc96e-847c-4828-9a16-2c2edd3c9580
+                          type: ELEMENT
+                    - meta:
+                        id: a55dc69d-662c-489f-af35-097b8b97ef02
+                        type: EiffelCompositionDefinedEvent
+                        version: 4.0.0
+                        time: 657718729700
+                      data:
+                        name: My Top Composition
+                      links:
+                        - target: 1a4bc724-95f7-43c9-b5de-6348ddddbafe
+                          type: ELEMENT
+        400:
+          description: Bad Request
+          content: {}
         401:
           description: Unauthorized
           content: {}
@@ -302,6 +357,9 @@ components:
             - SUB_CONFIDENCE_LEVEL
             - REUSED_ARTIFACT
             - VERIFICATION_BASIS
+            - PRECURSOR
+            - ORIGINAL_TRIGGER
+            - CONFIGURATION
             - ALL
         ult:
           type: array
@@ -329,6 +387,9 @@ components:
             - SUB_CONFIDENCE_LEVEL
             - REUSED_ARTIFACT
             - VERIFICATION_BASIS
+            - PRECURSOR
+            - ORIGINAL_TRIGGER
+            - CONFIGURATION
             - ALL
     EiffelEvent:
       type: object
@@ -349,4 +410,6 @@ components:
           time: 657718729693
         data:
           name: "My Composition"
-        links: []
+        links:
+          - target: a77fc96e-847c-4828-9a16-2c2edd3c9580
+            type: ELEMENT
