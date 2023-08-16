@@ -51,7 +51,7 @@ paths:
           /events?meta.source.domainId=my.domain&data.identity=pkg:maven/my.namespace/my-name@1.0.0    #Multiple keys and nested structures
           ```
 
-          Note that mutiple keys only is allowed with logical AND (via `&`). There are no support for logical OR.
+          Note that multiple keys only is allowed with logical AND (via `&`). There are no support for logical OR.
 
           **Data types:**
 
@@ -81,7 +81,7 @@ paths:
 
           **Example**
 
-          The following example adds two search parameters as two query keys (see https://swagger.io/docs/specification/serialization/ for more information).
+          The example provided in the `example` property of the `params` object adds two search parameters as two query keys (see https://swagger.io/docs/specification/serialization/ for more information).
           The result of the object will result in adding `meta.type=EiffelArtifactCreatedEvent&data.identity=pkg%3Amaven%2Fmy.namespace%2Fmy-name%401.0.0` to the search.
 
 
