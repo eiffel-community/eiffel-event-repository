@@ -58,7 +58,7 @@ paths:
           By default, all data types are treated as strings. It is possible to specify the data type by including it explicitly in the query:
 
           ```
-          /events?int(key1)>=value1&key2=value2&double(key3)=value3
+          /events?int(key1)=value1&key2=value2&double(key3)=value3
           ```
 
           In this example, `key1` and `value1` are treated as integers, `key2`
