@@ -53,20 +53,6 @@ paths:
 
           Note that multiple keys only is allowed with logical AND (via `&`). There are no support for logical OR.
 
-          **Data types:**
-
-          By default, all data types are treated as strings. It is possible to specify the data type by including it explicitly in the query:
-
-          ```
-          /events?int(key1)=value1&key2=value2&double(key3)=value3
-          ```
-
-          In this example, `key1` and `value1` are treated as integers, `key2`
-          and `value2` are treated as strings and `key3` and `values3` are
-          treated as doubles.
-
-          Currently only string (default), integer, long and double data types are supported.
-
           **No comparator:**
 
           To search for data that contains a field, use a query parameter
