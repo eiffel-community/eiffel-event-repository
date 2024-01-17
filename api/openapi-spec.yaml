@@ -321,62 +321,14 @@ components:
           type: array
           items:
             type: string
-            enum:
-            - CAUSE
-            - CONTEXT
-            - FLOW_CONTEXT
-            - ACTIVITY_EXECUTION
-            - PREVIOUS_ACTIVITY_EXECUTION
-            - PREVIOUS_VERSION
-            - COMPOSITION
-            - ENVIRONMENT
-            - ARTIFACT
-            - SUBJECT
-            - ELEMENT
-            - BASE
-            - CHANGE
-            - TEST_SUITE_EXECUTION
-            - TEST_CASE_EXECUTION
-            - IUT
-            - TERC
-            - MODIFIED_ANNOUNCEMENT
-            - SUB_CONFIDENCE_LEVEL
-            - REUSED_ARTIFACT
-            - VERIFICATION_BASIS
-            - PRECURSOR
-            - ORIGINAL_TRIGGER
-            - CONFIGURATION
-            - ALL
+            pattern: '^[A-Z_]+$'
+            default: ALL
         ult:
           type: array
           items:
             type: string
-            enum:
-            - CAUSE
-            - CONTEXT
-            - FLOW_CONTEXT
-            - ACTIVITY_EXECUTION
-            - PREVIOUS_ACTIVITY_EXECUTION
-            - PREVIOUS_VERSION
-            - COMPOSITION
-            - ENVIRONMENT
-            - ARTIFACT
-            - SUBJECT
-            - ELEMENT
-            - BASE
-            - CHANGE
-            - TEST_SUITE_EXECUTION
-            - TEST_CASE_EXECUTION
-            - IUT
-            - TERC
-            - MODIFIED_ANNOUNCEMENT
-            - SUB_CONFIDENCE_LEVEL
-            - REUSED_ARTIFACT
-            - VERIFICATION_BASIS
-            - PRECURSOR
-            - ORIGINAL_TRIGGER
-            - CONFIGURATION
-            - ALL
+            pattern: '^[A-Z_]+$'
+            default: ALL
     EiffelEvent:
       type: object
       properties:
